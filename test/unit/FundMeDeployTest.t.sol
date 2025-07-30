@@ -14,9 +14,6 @@ contract FundMeTest is Test {
     }
 
     function testDeploy() public view {
-        assertEq(
-            address(fundMe.getPriceFeed()),
-            0x694AA1769357215DE4FAC081bf1f309aDC325306
-        );
+        assertEq(address(fundMe.getPriceFeed()), 0x694AA1769357215DE4FAC081bf1f309aDC325306);
     }
 }
