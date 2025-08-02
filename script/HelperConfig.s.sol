@@ -15,13 +15,15 @@ abstract contract CodeConstants {
 }
 
 contract HelperConfig is CodeConstants, Script {
+    /* Errors */
     error HelperConfig__InvalidChainId();
 
+    /* Types */
     struct NetworkConfig {
         address priceFeed;
     }
 
-    // Local network state variables
+    /* State Variables */
     NetworkConfig public localNetworkConfig;
     mapping(uint256 chainId => NetworkConfig) public networkConfigs;
 
@@ -30,6 +32,7 @@ contract HelperConfig is CodeConstants, Script {
         networkConfigs[ZKSYNC_SEPOLIA_CHAIN_ID] = getZkSyncSepoliaConfig();
     }
 
+    /* Functions */
     function getConfigByChainId(uint256 chainId) public returns (NetworkConfig memory) {
         if (networkConfigs[chainId].priceFeed != address(0)) {
             return networkConfigs[chainId];
@@ -40,6 +43,7 @@ contract HelperConfig is CodeConstants, Script {
         }
     }
 
+    /* Configs */
     function getSepoliaEthConfig() public pure returns (NetworkConfig memory) {
         return NetworkConfig({
             priceFeed: 0x694AA1769357215DE4FAC081bf1f309aDC325306 // ETH / USD
@@ -52,6 +56,7 @@ contract HelperConfig is CodeConstants, Script {
         });
     }
 
+    /* Local Configs */
     function getOrCreateAnvilEthConfig() public returns (NetworkConfig memory) {
         // Check to see if we set an active network config
         if (localNetworkConfig.priceFeed != address(0)) {
