@@ -26,7 +26,10 @@ contract FundMeTest is ZkSyncChainChecker, CodeConstants, StdCheats, Test {
             DeployFundMe deployer = new DeployFundMe();
             (fundMe, helperConfig) = deployer.deployFundMe();
         } else {
-            MockV3Aggregator mockPriceFeed = new MockV3Aggregator(DECIMALS, INITIAL_PRICE);
+            MockV3Aggregator mockPriceFeed = new MockV3Aggregator(
+                DECIMALS,
+                INITIAL_PRICE
+            );
             fundMe = new FundMe(address(mockPriceFeed));
         }
         vm.deal(USER, STARTING_USER_BALANCE);
@@ -34,7 +37,9 @@ contract FundMeTest is ZkSyncChainChecker, CodeConstants, StdCheats, Test {
 
     function testPriceFeedSetCorrectly() public skipZkSync {
         address retreivedPriceFeed = address(fundMe.getPriceFeed());
-        address expectedPriceFeed = helperConfig.getConfigByChainId(block.chainid).priceFeed;
+        address expectedPriceFeed = helperConfig
+            .getConfigByChainId(block.chainid)
+            .priceFeed;
         assertEq(retreivedPriceFeed, expectedPriceFeed);
     }
 
@@ -97,7 +102,11 @@ contract FundMeTest is ZkSyncChainChecker, CodeConstants, StdCheats, Test {
 
         uint256 originalFundMeBalance = address(fundMe).balance;
 
-        for (uint160 i = startingFunderIndex; i < numberOfFunders + startingFunderIndex; i++) {
+        for (
+            uint160 i = startingFunderIndex;
+            i < numberOfFunders + startingFunderIndex;
+            i++
+        ) {
             hoax(address(i), STARTING_USER_BALANCE);
             fundMe.fund{value: SEND_VALUE}();
         }
@@ -110,11 +119,22 @@ contract FundMeTest is ZkSyncChainChecker, CodeConstants, StdCheats, Test {
         vm.stopPrank();
 
         assert(address(fundMe).balance == 0);
-        assert(startingFundedeBalance + startingOwnerBalance == fundMe.getOwner().balance);
+        assert(
+            startingFundedeBalance + startingOwnerBalance ==
+                fundMe.getOwner().balance
+        );
 
-        uint256 expectedTotalValueWithdrawn = ((numberOfFunders) * SEND_VALUE) + originalFundMeBalance;
-        uint256 totalValueWithdrawn = fundMe.getOwner().balance - startingOwnerBalance;
+        uint256 expectedTotalValueWithdrawn = ((numberOfFunders) * SEND_VALUE) +
+            originalFundMeBalance;
+        uint256 totalValueWithdrawn = fundMe.getOwner().balance -
+            startingOwnerBalance;
 
         assert(expectedTotalValueWithdrawn == totalValueWithdrawn);
+    }
+
+    function testCannotWithdrawIfNotOwner() public {
+        vm.prank(address(0xBEEF));
+        vm.expectRevert();
+        fundMe.withdraw();
     }
 }
